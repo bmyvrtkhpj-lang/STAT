@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
   Bell,
-  MessageSquarePlus,
   Bookmark,
   Clock,
   MessageSquare,
@@ -39,11 +38,6 @@ const TIME_LABELS = [
   { t: "15:28", bold: false },
 ];
 
-// Curated set of large-cap NSE stocks. This is a representative sample,
-// not literally "every" NSE-listed stock (there are 2000+) — a widget
-// can't dynamically load an unbounded universe. For the full universe,
-// the Advanced Chart's own search icon lets you look up any NSE symbol,
-// or you'd want a proper data API instead of a display widget.
 const NSE_STOCKS = [
   { proName: "NSE:RELIANCE", title: "Reliance" },
   { proName: "NSE:TCS", title: "TCS" },
@@ -116,56 +110,66 @@ function AreaChart() {
   );
 }
 
-function TopNav() {
-  const navItems = ["Products", "Community", "Markets", "Brokers", "More"];
+// TOP NAV COMPONENT (Updated as per request)
+function TopNav({ activeTab, setActiveTab, showStrategies, setShowStrategies }) {
+  // Strategies Data
+  const strategiesList = [
+    { name: "Alpha Hedging", desc: "Market girne par portfolio protect karta hai." },
+    { name: "Momentum Swing", desc: "Fast-moving stocks me short-term profit." },
+    { name: "Long Term Core", desc: "Stable aur blue-chip stocks ka portfolio." }
+  ];
+
   return (
-    <header className="border-b border-neutral-100">
-      <div className="max-w-[1400px] mx-auto px-6 h-[76px] flex items-center gap-8">
-        {/* logo mark (generic, not the source brand's logo) */}
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="h-8 w-8 rounded-md bg-neutral-900 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">M</span>
-          </div>
+    <header className="border-b border-neutral-100 bg-white relative z-50">
+      <div className="max-w-[1400px] mx-auto px-6 h-[76px] flex items-center justify-between">
+        
+        {/* Left Side: "S" Icon & Dropdown */}
+        <div className="relative flex-shrink-0">
+          <button 
+            onClick={() => setShowStrategies(!showStrategies)}
+            className="h-9 w-9 bg-black text-white text-sm font-bold rounded-lg flex items-center justify-center hover:bg-neutral-800 transition"
+          >
+            S
+          </button>
+
+          {/* Strategies Dropdown Menu */}
+          {showStrategies && (
+            <div className="absolute top-12 left-0 w-72 bg-white border border-neutral-200 rounded-xl shadow-xl p-4 z-50">
+              <h3 className="font-bold text-neutral-800 mb-3 border-b pb-2">My Strategies</h3>
+              <div className="space-y-3">
+                {strategiesList.map((strat, index) => (
+                  <div key={index} className="hover:bg-neutral-50 p-2 rounded-lg cursor-pointer transition-colors">
+                    <p className="font-semibold text-sm text-neutral-900">{strat.name}</p>
+                    <p className="text-xs text-neutral-500 mt-0.5">{strat.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="flex-1 max-w-md">
-          <div className="flex items-center gap-2 rounded-full border border-neutral-200 px-4 py-2.5 text-neutral-400 hover:border-neutral-300 transition-colors cursor-text">
-            <Search size={16} />
-            <span className="text-[15px]">Search</span>
-            <span className="ml-auto text-xs bg-neutral-100 rounded px-1.5 py-0.5 text-neutral-500">
-              ⌘K
-            </span>
-          </div>
-        </div>
-
-        <nav className="hidden lg:flex items-center gap-7 shrink-0">
-          {navItems.map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="text-[15px] font-medium text-neutral-800 hover:text-black"
-            >
-              {item}
-            </a>
-          ))}
+        {/* Middle: Tabs (White & Black) */}
+        <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-8 h-full">
+          <button 
+            onClick={() => setActiveTab('White')}
+            className={`text-[15px] font-medium h-full border-b-2 transition-colors ${
+              activeTab === 'White' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'
+            }`}
+          >
+            White
+          </button>
+          <button 
+            onClick={() => setActiveTab('Black')}
+            className={`text-[15px] font-medium h-full border-b-2 transition-colors ${
+              activeTab === 'Black' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'
+            }`}
+          >
+            Black
+          </button>
         </nav>
 
-        <div className="flex items-center gap-4 shrink-0 ml-auto lg:ml-0">
-          <div className="relative h-9 w-9 rounded-full bg-gradient-to-br from-rose-900 to-amber-700 flex items-center justify-center text-white text-sm font-semibold">
-            N
-            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
-          </div>
-          <button className="rounded-xl px-4 py-2 bg-gradient-to-r from-sky-500 to-fuchsia-500 text-white text-left leading-tight shadow-sm hover:opacity-90 transition-opacity">
-            <div className="text-sm font-semibold">Upgrade now</div>
-            <div className="text-[11px] opacity-90">30-day free trial</div>
-          </button>
-          <button className="hidden sm:flex h-9 w-9 items-center justify-center rounded-full hover:bg-neutral-100 text-neutral-600">
-            <MessageSquarePlus size={18} />
-          </button>
-          <button className="hidden sm:flex h-9 w-9 items-center justify-center rounded-full hover:bg-neutral-100 text-neutral-600">
-            <Search size={18} />
-          </button>
-        </div>
+        {/* Right Side: Kept empty intentionally */}
+        <div className="w-9 flex-shrink-0"></div>
       </div>
     </header>
   );
@@ -336,13 +340,6 @@ function CryptoCard() {
   );
 }
 
-// Official TradingView "Advanced Chart" widget embed.
-// Docs / config generator: https://www.tradingview.com/widget/advanced-chart/
-// Note: this loads a script from s3.tradingview.com at runtime. If the
-// surrounding environment blocks third-party script domains (some sandboxed
-// previews do), the chart area will stay blank — this is a loading/CSP
-// issue, not a code bug. Verify symbol codes on tradingview.com if a
-// specific market/index doesn't resolve.
 function TradingViewChart({ symbol = "NSE:NIFTY", theme = "light", height = 480 }) {
   const containerRef = useRef(null);
 
@@ -392,7 +389,6 @@ function TradingViewChart({ symbol = "NSE:NIFTY", theme = "light", height = 480 
   );
 }
 
-// TradingView "Mini Chart" widget — compact symbol overview + sparkline.
 function TradingViewMiniChart({ symbol, height = 220 }) {
   const containerRef = useRef(null);
 
@@ -436,16 +432,8 @@ function TradingViewMiniChart({ symbol, height = 220 }) {
   );
 }
 
-function IndicesGrid() {
-  // NSE:NIFTY, BSE:SENSEX, NSE:BANKNIFTY are the ones I'm confident about.
-  // Sector index codes (Nifty IT / FMCG / Auto etc.) vary and aren't
-  // included here — verify exact codes on tradingview.com before adding.
-  const indices = [
-    { symbol: "NSE:NIFTY", label: "Nifty 50" },
-    { symbol: "BSE:SENSEX", label: "Sensex" },
-    { symbol: "NSE:BANKNIFTY", label: "Bank Nifty" },
-  ];
-
+// Updated IndicesGrid to accept title and dynamic data
+function IndicesGrid({ title, indicesData }) {
   return (
     <div
       className="rounded-2xl border border-neutral-100 bg-white p-5 mt-5"
@@ -454,12 +442,13 @@ function IndicesGrid() {
           "0 1px 2px rgba(0,0,0,0.03), 0 12px 28px -14px rgba(0,0,0,0.10)",
       }}
     >
-      <h3 className="text-lg font-semibold mb-4 px-1">Indices</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {indices.map((idx) => (
+      <h3 className="text-lg font-semibold mb-4 px-1">{title}</h3>
+      {/* 4 columns for large screens, 2 for medium, 1 for mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {indicesData.map((idx) => (
           <div
             key={idx.symbol}
-            className="rounded-xl border border-neutral-100 overflow-hidden"
+            className="rounded-xl border border-neutral-100 overflow-hidden hover:shadow-md transition-shadow"
           >
             <TradingViewMiniChart symbol={idx.symbol} height={210} />
           </div>
@@ -469,9 +458,6 @@ function IndicesGrid() {
   );
 }
 
-// TradingView "Ticker Tape" widget — scrolling strip covering many symbols
-// at once. Good fit for "show a lot of stocks compactly" without loading
-// a full watchlist widget.
 function TickerTape() {
   const containerRef = useRef(null);
 
@@ -563,28 +549,100 @@ function RightRail() {
   );
 }
 
+// MAIN APP COMPONENT
 export default function App() {
+  const [activeTab, setActiveTab] = useState('White');
+  const [showStrategies, setShowStrategies] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 🇮🇳 Indian Indices List
+  const indianIndices = [
+    { symbol: "NSE:NIFTY", label: "Nifty 50" },
+    { symbol: "NSE:BANKNIFTY", label: "Bank Nifty" },
+    { symbol: "BSE:SENSEX", label: "Sensex" },
+    { symbol: "NSE:FINNIFTY", label: "FinNifty" },
+    { symbol: "NSE:CNXIT", label: "Nifty IT" },
+    { symbol: "NSE:CNXAUTO", label: "Nifty Auto" },
+    { symbol: "NSE:NIFTYMIDCAP100", label: "Midcap 100" },
+    { symbol: "NSE:CNXFMCG", label: "Nifty FMCG" },
+  ];
+
+  // 🌎 Global (Foreign) Indices List
+  const globalIndices = [
+    { symbol: "TVC:SPX", label: "S&P 500 (US)" },
+    { symbol: "NASDAQ:NDX", label: "NASDAQ 100 (US)" },
+    { symbol: "TVC:DJI", label: "Dow Jones (US)" },
+    { symbol: "TVC:UKX", label: "FTSE 100 (UK)" },
+    { symbol: "TVC:NI225", label: "Nikkei 225 (Japan)" },
+    { symbol: "XETR:DAX", label: "DAX (Germany)" },
+    { symbol: "TVC:HSI", label: "Hang Seng (Hong Kong)" },
+    { symbol: "TVC:SHCOMP", label: "Shanghai Composite" },
+  ];
+
   return (
-    <div className="min-h-screen bg-white text-neutral-900">
-      <TopNav />
+    <div className={`min-h-screen font-sans ${activeTab === 'Black' ? 'bg-neutral-900 text-white' : 'bg-gray-50 text-neutral-900'}`}>
+      
+      <TopNav 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        showStrategies={showStrategies} 
+        setShowStrategies={setShowStrategies} 
+      />
+      
       <main className="max-w-[1400px] mx-auto px-6 pt-8 pb-16 md:pr-20">
-        <h1 className="flex items-center gap-1 text-[26px] font-semibold mb-6 cursor-pointer w-fit group">
-          Market summary
-          <ChevronRight
-            size={20}
-            className="text-neutral-400 group-hover:translate-x-0.5 transition-transform"
+        
+        <div className="mb-8 relative max-w-xl">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <Search size={18} className={activeTab === 'Black' ? 'text-neutral-500' : 'text-neutral-400'} />
+          </div>
+          <input
+            type="text"
+            placeholder={`Search funds in ${activeTab} strategy...`}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-colors ${
+              activeTab === 'Black' 
+                ? 'bg-neutral-800 border-neutral-700 text-white placeholder-neutral-500' 
+                : 'bg-white border-neutral-200 text-neutral-900 placeholder-neutral-400'
+            }`}
           />
-        </h1>
-        <IndexCard />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
-          <MajorIndicesCard />
-          <CryptoCard />
         </div>
-        <IndicesGrid />
-        <TickerTape />
-        <ChartCard />
+
+        {activeTab === 'White' ? (
+          <>
+            <h1 className="flex items-center gap-1 text-[26px] font-semibold mb-6 cursor-pointer w-fit group">
+              Market summary
+              <ChevronRight
+                size={20}
+                className="text-neutral-400 group-hover:translate-x-0.5 transition-transform"
+              />
+            </h1>
+            
+            {/* Top Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+              <IndexCard />
+              <MajorIndicesCard />
+            </div>
+
+            {/* Indian Indices Grid */}
+            <IndicesGrid title="🇮🇳 Indian Markets" indicesData={indianIndices} />
+            
+            {/* Foreign Indices Grid */}
+            <IndicesGrid title="🌎 Global Markets" indicesData={globalIndices} />
+
+            <TickerTape />
+            <ChartCard />
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-96 bg-neutral-800 border-2 border-dashed border-neutral-700 rounded-2xl">
+            <h2 className="text-2xl font-bold mb-2 text-white">Black Strategy Data</h2>
+            <p className="text-neutral-400">Yahan aapki Black strategy ke dark-themed charts aur data aayenge.</p>
+          </div>
+        )}
+
       </main>
-      <RightRail />
+
+      {activeTab === 'White' && <RightRail />}
     </div>
   );
 }
